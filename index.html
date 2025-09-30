@@ -22,101 +22,23 @@
       text-align: center;
       margin: 5px 0 15px;
     }
-    .marquee {
-      display: flex;
-      gap: 20px;
-      animation: scroll 40s linear infinite;
-      white-space: nowrap;
-    }
-    .card {
-      background: white;
-      padding: 15px 25px;
-      border-radius: 12px;
-      box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
-      font-size: 1.1em;
-      display: inline-block;
-      min-width: 280px;
-    }
-    @keyframes scroll {
-      from {
-        transform: translateX(100%);
-      }
-      to {
-        transform: translateX(-100%);
-      }
-    }
-    #container {
+    #faixa {
       width: 100%;
       overflow: hidden;
       border-top: 3px solid #046307;
       border-bottom: 3px solid #046307;
-      padding: 15px 0;
       background: #e9f9e9;
+      padding: 10px 0;
     }
-  </style>
-</head>
-<body>
-  <img src="https://upload.wikimedia.org/wikipedia/en/0/05/Flag_of_Brazil.svg" alt="Bandeira do Brasil">
-  <h1>Curiosidades do Brasil 🇧🇷</h1>
-
-  <div id="container">
-    <div class="marquee" id="marquee">
-      <div class="card">Carregando curiosidades...</div>
-    </div>
-  </div>
-
-  <script>
-    async function carregarDados() {
-      let curiosidades = [];
-
-      try {
-        // Feriados
-        const feriadosResp = await fetch("https://brasilapi.com.br/api/feriados/v1/2025");
-        const feriados = await feriadosResp.json();
-        feriados.forEach(f => curiosidades.push(`Feriado: ${f.date} - ${f.name}`));
-
-        // DDD
-        const dddResp = await fetch("https://brasilapi.com.br/api/ddd/v1/31");
-        const ddd = await dddResp.json();
-        curiosidades.push(`DDD 31 abrange ${ddd.cities.length} cidades, como ${ddd.cities.slice(0,3).join(", ")}...`);
-
-        // Bancos
-        const bancosResp = await fetch("https://brasilapi.com.br/api/banks/v1");
-        const bancos = await bancosResp.json();
-        bancos.slice(0, 3).forEach(b => {
-          curiosidades.push(`Banco: ${b.fullName} (cód. ${b.code})`);
-        });
-
-        // Cotação dólar
-        const moedaResp = await fetch("https://brasilapi.com.br/api/cotacao/v1/USD");
-        const moeda = await moedaResp.json();
-        curiosidades.push(`💱 Cotação do dólar: R$ ${moeda[0].bid}`);
-
-      } catch (e) {
-        curiosidades = ["Erro ao carregar dados."];
-        console.error(e);
-      }
-
-      // Monta os cards
-      const marquee = document.getElementById("marquee");
-      marquee.innerHTML = "";
-      curiosidades.forEach(txt => {
-        const div = document.createElement("div");
-        div.className = "card";
-        div.innerText = txt;
-        marquee.appendChild(div);
-      });
-
-      // Duplica para looping suave
-      curiosidades.forEach(txt => {
-        const div = document.createElement("div");
-        div.className = "card";
-        div.innerText = txt;
-        marquee.appendChild(div);
-      });
+    .marquee {
+      display: inline-flex;
+      gap: 20px;
+      animation: scroll 50s linear infinite;
     }
-
-    carregarDados();
-  </script>
-</body>
-</html>
+    .card {
+      background: white;
+      padding: 10px 20px;
+      border-radius: 12px;
+      box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+      font-size: 1em;
+      white-space: no
