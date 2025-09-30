@@ -1,44 +1,70 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Curiosidades do Brasil</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f0f8f0;
-      color: #222;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
+<meta charset="UTF-8">
+<title>Curiosidades do Brasil</title>
+<style>
+  body { font-family: Arial,sans-serif; background:#f0f8f0; margin:0; padding:0; overflow:hidden; text-align:center;}
+  img { width:120px; margin:10px auto; display:block; }
+  h1 { color:#046307; margin:5px 0 15px; }
+  #faixa { width:100%; overflow:hidden; border-top:3px solid #046307; border-bottom:3px solid #046307; background:#e9f9e9; padding:10px 0; }
+  .marquee { display:inline-flex; gap:20px; animation: scroll 50s linear infinite; }
+  .card { background:white; padding:10px 20px; border-radius:12px; box-shadow:0 4px 8px rgba(0,0,0,0.2); font-size:1em; white-space:nowrap; }
+  @keyframes scroll { from{transform:translateX(100%);} to{transform:translateX(-100%);} }
+</style>
+</head>
+<body>
+<img src="https://upload.wikimedia.org/wikipedia/en/0/05/Flag_of_Brazil.svg" alt="Bandeira do Brasil">
+<h1>Curiosidades do Brasil 🇧🇷</h1>
+
+<div id="faixa">
+  <div class="marquee" id="marquee">
+    <div class="card">Carregando dados...</div>
+  </div>
+</div>
+
+<script>
+async function carregarDados() {
+  const marquee = document.getElementById("marquee");
+  marquee.innerHTML = "";
+
+  try {
+    // Feriados
+    const feriadosResp = await fetch("https://brasilapi.com.br/api/feriados/v1/2025");
+    const feriados = await feriadosResp.json();
+    feriados.forEach(f => {
+      marquee.innerHTML += `<div class="card">📅 ${f.date} - ${f.name}</div>`;
+    });
+
+    // DDD
+    const dddResp = await fetch("https://brasilapi.com.br/api/ddd/v1/31");
+    const ddd = await dddResp.json();
+    marquee.innerHTML += `<div class="card">☎️ DDD 31 cobre ${ddd.cities.length} cidades (ex: ${ddd.cities.slice(0,3).join(", ")}...)</div>`;
+
+    // Bancos
+    const bancosResp = await fetch("https://brasilapi.com.br/api/banks/v1");
+    const bancos = await bancosResp.json();
+    bancos.slice(0, 3).forEach(b => {
+      marquee.innerHTML += `<div class="card">🏦 Banco: ${b.fullName} (cód. ${b.code})</div>`;
+    });
+
+    // Cotação do dólar
+    const moedaResp = await fetch("https://brasilapi.com.br/api/cotacao/v1/USD-BRL");
+    const moeda = await moedaResp.json();
+    if(moeda && moeda.ask) {
+      marquee.innerHTML += `<div class="card">💱 1 USD = R$ ${moeda.ask.toFixed(2)}</div>`;
     }
-    img {
-      width: 120px;
-      margin: 10px auto;
-      display: block;
-    }
-    h1 {
-      color: #046307;
-      text-align: center;
-      margin: 5px 0 15px;
-    }
-    #faixa {
-      width: 100%;
-      overflow: hidden;
-      border-top: 3px solid #046307;
-      border-bottom: 3px solid #046307;
-      background: #e9f9e9;
-      padding: 10px 0;
-    }
-    .marquee {
-      display: inline-flex;
-      gap: 20px;
-      animation: scroll 50s linear infinite;
-    }
-    .card {
-      background: white;
-      padding: 10px 20px;
-      border-radius: 12px;
-      box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
-      font-size: 1em;
-      white-space: no
+
+    // Duplica para rolagem contínua
+    marquee.innerHTML += marquee.innerHTML;
+
+  } catch (e) {
+    marquee.innerHTML = `<div class="card">❌ Erro ao carregar dados</div>`;
+    console.error(e);
+  }
+}
+
+carregarDados();
+</script>
+</body>
+</html>
