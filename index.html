@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Curiosidades do Brasil</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f0f8f0;
+      color: #222;
+    }
+    img {
+      width: 150px;
+      margin: 20px auto;
+      display: block;
+    }
+    h1 {
+      color: #046307;
+    }
+    .card {
+      background: white;
+      margin: 15px auto;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+      width: 70%;
+      font-size: 1.1em;
+    }
+    .section-title {
+      margin-top: 30px;
+      font-size: 1.4em;
+      color: #034d04;
+    }
+  </style>
+</head>
+<body>
+  <img src="https://upload.wikimedia.org/wikipedia/en/0/05/Flag_of_Brazil.svg" alt="Bandeira do Brasil">
+  <h1>Curiosidades do Brasil 🇧🇷</h1>
+
+  <h2 class="section-title">📅 Feriados Nacionais (2025)</h2>
+  <div id="feriados">Carregando...</div>
+
+  <h2 class="section-title">☎️ DDD 31 (Minas Gerais)</h2>
+  <div id="ddd">Carregando...</div>
+
+  <h2 class="section-title">🏦 Bancos do Brasil</h2>
+  <div id="bancos">Carregando...</div>
+
+  <h2 class="section-title">💱 Cotação do Dólar</h2>
+  <div id="moeda">Carregando...</div>
+
+  <script>
+    // Feriados
+    async function carregarFeriados() {
+      const resp = await fetch("https://brasilapi.com.br/api/feriados/v1/2025");
+      const dados = await resp.json();
+      const box = document.getElementById("feriados");
+      box.innerHTML = "";
+      dados.forEach(f => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerText = `${f.date} - ${f.name}`;
+        box.appendChild(div);
+      });
+    }
+
+    // DDD
+    async function carregarDDD() {
+      const resp = await fetch("https://brasilapi.com.br/api/ddd/v1/31");
+      const dados = await resp.json();
+      const box = document.getElementById("ddd");
+      box.innerHTML = dados.cities.map(c => `<div class="card">${c}</div>`).join("");
+    }
+
+    // Bancos
+    async function carregarBancos() {
+      const resp = await fetch("https://brasilapi.com.br/api/banks/v1");
+      const dados = await resp.json();
+      const box = document.getElementById("bancos");
+      box.innerHTML = "";
+      dados.slice(0, 5).forEach(b => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerText = `${b.code} - ${b.fullName}`;
+        box.appendChild(div);
+      });
+    }
+
+    // Cotação do dólar
+    async function carregarMoeda() {
+      const resp = await fetch("https://brasilapi.com.br/api/cotacao/v1/USD");
+      const dados = await resp.json();
+      const box = document.getElementById("moeda");
+      box.innerHTML = `<div class="card">1 USD = R$ ${dados[0].bid}</div>`;
+    }
+
+    // Rodar todas
+    carregarFeriados();
+    carregarDDD();
+    carregarBancos();
+    carregarMoeda();
+  </script>
+</body>
+</html>
