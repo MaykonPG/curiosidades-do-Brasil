@@ -6,31 +6,52 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      text-align: center;
       background: #f0f8f0;
       color: #222;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
     }
     img {
-      width: 150px;
-      margin: 20px auto;
+      width: 120px;
+      margin: 10px auto;
       display: block;
     }
     h1 {
       color: #046307;
+      text-align: center;
+      margin: 5px 0 15px;
+    }
+    .marquee {
+      display: flex;
+      gap: 20px;
+      animation: scroll 40s linear infinite;
+      white-space: nowrap;
     }
     .card {
       background: white;
-      margin: 15px auto;
-      padding: 15px;
+      padding: 15px 25px;
       border-radius: 12px;
       box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
-      width: 70%;
       font-size: 1.1em;
+      display: inline-block;
+      min-width: 280px;
     }
-    .section-title {
-      margin-top: 30px;
-      font-size: 1.4em;
-      color: #034d04;
+    @keyframes scroll {
+      from {
+        transform: translateX(100%);
+      }
+      to {
+        transform: translateX(-100%);
+      }
+    }
+    #container {
+      width: 100%;
+      overflow: hidden;
+      border-top: 3px solid #046307;
+      border-bottom: 3px solid #046307;
+      padding: 15px 0;
+      background: #e9f9e9;
     }
   </style>
 </head>
@@ -38,68 +59,64 @@
   <img src="https://upload.wikimedia.org/wikipedia/en/0/05/Flag_of_Brazil.svg" alt="Bandeira do Brasil">
   <h1>Curiosidades do Brasil 🇧🇷</h1>
 
-  <h2 class="section-title">📅 Feriados Nacionais (2025)</h2>
-  <div id="feriados">Carregando...</div>
-
-  <h2 class="section-title">☎️ DDD 31 (Minas Gerais)</h2>
-  <div id="ddd">Carregando...</div>
-
-  <h2 class="section-title">🏦 Bancos do Brasil</h2>
-  <div id="bancos">Carregando...</div>
-
-  <h2 class="section-title">💱 Cotação do Dólar</h2>
-  <div id="moeda">Carregando...</div>
+  <div id="container">
+    <div class="marquee" id="marquee">
+      <div class="card">Carregando curiosidades...</div>
+    </div>
+  </div>
 
   <script>
-    // Feriados
-    async function carregarFeriados() {
-      const resp = await fetch("https://brasilapi.com.br/api/feriados/v1/2025");
-      const dados = await resp.json();
-      const box = document.getElementById("feriados");
-      box.innerHTML = "";
-      dados.forEach(f => {
+    async function carregarDados() {
+      let curiosidades = [];
+
+      try {
+        // Feriados
+        const feriadosResp = await fetch("https://brasilapi.com.br/api/feriados/v1/2025");
+        const feriados = await feriadosResp.json();
+        feriados.forEach(f => curiosidades.push(`Feriado: ${f.date} - ${f.name}`));
+
+        // DDD
+        const dddResp = await fetch("https://brasilapi.com.br/api/ddd/v1/31");
+        const ddd = await dddResp.json();
+        curiosidades.push(`DDD 31 abrange ${ddd.cities.length} cidades, como ${ddd.cities.slice(0,3).join(", ")}...`);
+
+        // Bancos
+        const bancosResp = await fetch("https://brasilapi.com.br/api/banks/v1");
+        const bancos = await bancosResp.json();
+        bancos.slice(0, 3).forEach(b => {
+          curiosidades.push(`Banco: ${b.fullName} (cód. ${b.code})`);
+        });
+
+        // Cotação dólar
+        const moedaResp = await fetch("https://brasilapi.com.br/api/cotacao/v1/USD");
+        const moeda = await moedaResp.json();
+        curiosidades.push(`💱 Cotação do dólar: R$ ${moeda[0].bid}`);
+
+      } catch (e) {
+        curiosidades = ["Erro ao carregar dados."];
+        console.error(e);
+      }
+
+      // Monta os cards
+      const marquee = document.getElementById("marquee");
+      marquee.innerHTML = "";
+      curiosidades.forEach(txt => {
         const div = document.createElement("div");
         div.className = "card";
-        div.innerText = `${f.date} - ${f.name}`;
-        box.appendChild(div);
+        div.innerText = txt;
+        marquee.appendChild(div);
+      });
+
+      // Duplica para looping suave
+      curiosidades.forEach(txt => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerText = txt;
+        marquee.appendChild(div);
       });
     }
 
-    // DDD
-    async function carregarDDD() {
-      const resp = await fetch("https://brasilapi.com.br/api/ddd/v1/31");
-      const dados = await resp.json();
-      const box = document.getElementById("ddd");
-      box.innerHTML = dados.cities.map(c => `<div class="card">${c}</div>`).join("");
-    }
-
-    // Bancos
-    async function carregarBancos() {
-      const resp = await fetch("https://brasilapi.com.br/api/banks/v1");
-      const dados = await resp.json();
-      const box = document.getElementById("bancos");
-      box.innerHTML = "";
-      dados.slice(0, 5).forEach(b => {
-        const div = document.createElement("div");
-        div.className = "card";
-        div.innerText = `${b.code} - ${b.fullName}`;
-        box.appendChild(div);
-      });
-    }
-
-    // Cotação do dólar
-    async function carregarMoeda() {
-      const resp = await fetch("https://brasilapi.com.br/api/cotacao/v1/USD");
-      const dados = await resp.json();
-      const box = document.getElementById("moeda");
-      box.innerHTML = `<div class="card">1 USD = R$ ${dados[0].bid}</div>`;
-    }
-
-    // Rodar todas
-    carregarFeriados();
-    carregarDDD();
-    carregarBancos();
-    carregarMoeda();
+    carregarDados();
   </script>
 </body>
 </html>
