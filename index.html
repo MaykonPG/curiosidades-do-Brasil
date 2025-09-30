@@ -29,10 +29,12 @@
       border-top: 3px solid #046307;
       border-bottom: 3px solid #046307;
       background: #e9f9e9;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       position: relative;
+    }
+    .marquee {
+      display: flex;
+      transition: transform 1s ease-in-out;
+      height: 100%;
     }
     .card {
       background: white;
@@ -40,15 +42,11 @@
       border-radius: 12px;
       box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
       font-size: 1.1em;
-      min-width: 300px;
+      min-width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       text-align: center;
-      position: absolute;
-      opacity: 0;
-      transition: opacity 1s;
-    }
-    .card.active {
-      opacity: 1;
-      position: relative;
     }
   </style>
 </head>
@@ -57,7 +55,9 @@
   <h1>Curiosidades do Brasil 🇧🇷</h1>
 
   <div id="container">
-    <div class="card active">Carregando curiosidades...</div>
+    <div class="marquee" id="marquee">
+      <div class="card">Carregando curiosidades...</div>
+    </div>
   </div>
 
   <script>
@@ -92,24 +92,22 @@
         console.error(e);
       }
 
-      const container = document.getElementById("container");
-      container.innerHTML = "";
-
-      curiosidades.forEach((txt, i) => {
+      // Monta os cards
+      const marquee = document.getElementById("marquee");
+      marquee.innerHTML = "";
+      curiosidades.forEach(txt => {
         const div = document.createElement("div");
         div.className = "card";
-        if (i === 0) div.classList.add("active");
         div.innerText = txt;
-        container.appendChild(div);
+        marquee.appendChild(div);
       });
 
-      // Slide automático
+      // Configura slide automático
       let index = 0;
-      const cards = document.querySelectorAll(".card");
+      const total = curiosidades.length;
       setInterval(() => {
-        cards[index].classList.remove("active");
-        index = (index + 1) % cards.length;
-        cards[index].classList.add("active");
+        index = (index + 1) % total;
+        marquee.style.transform = `translateX(-${index * 100}%)`;
       }, 4000); // troca a cada 4 segundos
     }
 
